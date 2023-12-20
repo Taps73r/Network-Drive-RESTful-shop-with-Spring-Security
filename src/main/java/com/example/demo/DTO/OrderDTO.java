@@ -1,22 +1,25 @@
 package com.example.demo.DTO;
 
 import com.example.demo.model.Order;
+import com.example.demo.model.Status;
 
 import java.util.Objects;
 
-public record OrderDTO(Long orderId, String orderName, double orderPrice, CustomerDTO customer) {
+public record OrderDTO(Long Id, String name, double price, Status status, CustomerDTO customer) {
     public OrderDTO {
-        Objects.requireNonNull(orderId);
-        Objects.requireNonNull(orderName);
-        Objects.requireNonNull(orderPrice);
+        Objects.requireNonNull(Id);
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(price);
         Objects.requireNonNull(customer);
+        Objects.requireNonNull(status);
     }
 
     public static OrderDTO fromOrder(Order order) {
         return new OrderDTO(
-                order.getOrderId(),
-                order.getOrderName(),
-                order.getOrderPrice(),
+                order.getId(),
+                order.getName(),
+                order.getPrice(),
+                order.getStatus(),
                 CustomerDTO.fromCustomer(order.getCustomer())
         );
     }

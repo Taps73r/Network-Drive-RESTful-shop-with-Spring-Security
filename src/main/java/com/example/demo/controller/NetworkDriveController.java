@@ -4,6 +4,8 @@ import com.example.demo.DTO.NetworkDriveDTO;
 import com.example.demo.model.NetworkDrive;
 import com.example.demo.service.NetworkDriveService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,18 +52,48 @@ public class NetworkDriveController {
     }
 
     //Post Network drive to Order
-    @PostMapping("/orders/{orderId}")
-    public ResponseEntity<?> createNasForOrder(
-            @PathVariable Long orderId,
-            @RequestBody NetworkDrive networkDrive) {
+    @PostMapping
+    public ResponseEntity<?> createNetworkDrive(@RequestBody NetworkDrive networkDrive) {
         List<String> validationErrors = validateNetworkDrive(networkDrive);
         if (!validationErrors.isEmpty()) {
             return ResponseEntity.badRequest().body(validationErrors);
+        } else {
+            NetworkDrive createdNetworkDrive = networkDriveService.addNas(networkDrive);
+            return ResponseEntity.ok(NetworkDriveDTO.fromNetworkDrive(createdNetworkDrive));
         }
-        else {
-            networkDriveService.addNasForOrder(orderId, networkDrive);
-            return ResponseEntity.created(NetworkDriveDTO.fromNetworkDrive(networkDrive));
+    }
+    // Get Network drive by ID
+    @GetMapping("/{nasId}")
+    public ResponseEntity<NetworkDriveDTO> getNasById(@PathVariable Long nasId) {
+        NetworkDrive networkDrive = networkDriveService.getNetworkDriveById(nasId);
+        if (networkDrive != null) {
+            return ResponseEntity.ok(NetworkDriveDTO.fromNetworkDrive(networkDrive));
+        } else {
+            return ResponseEntity.notFound().build();
         }
+    }
+
+    // Search Network drive by name
+    @GetMapping("/searchByName")
+    public ResponseEntity<List<NetworkDriveDTO>> searchNasByName(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<NetworkDrive> networkDrives = networkDriveService.searchNasByName(name, pageable);
+        return ResponseEntity.ok(NetworkDriveDTO.fromNetworkDriveList(networkDrives));
+    }
+
+    // Search Network drive by price range
+    @GetMapping("/searchByPrice")
+    public ResponseEntity<List<NetworkDriveDTO>> searchNasByPriceRange(
+            @RequestParam double minPrice,
+            @RequestParam double maxPrice,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<NetworkDrive> networkDrives = networkDriveService.searchNasByPriceRange(minPrice, maxPrice, pageable);
+        return ResponseEntity.ok(NetworkDriveDTO.fromNetworkDriveList(networkDrives));
     }
 
     private List<String> validateNetworkDrive(NetworkDrive networkDrive) {

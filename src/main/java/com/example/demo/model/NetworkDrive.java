@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,16 +29,22 @@ public class NetworkDrive {
     private String networkDriveName;
     private double price;
     private String networkDriveInfo;
-
-    //TODO ManyToMany
+    @JsonIgnore
     @ManyToMany
-    @JoinColumn(name = "order_id")
+    @JoinTable(
+            name = "order_network_drive",
+            joinColumns = @JoinColumn(name = "network_drive_id"),
+            inverseJoinColumns = @JoinColumn(name = "order_id")
+    )
     private List<Order> orders;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
     private NetworkDriveCategory networkDriveCategory;
 
+    public Long getNetworkDriveId() {
+        return networkDrive_Id;
+    }
 
     @Override
     public String toString() {

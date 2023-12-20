@@ -1,9 +1,13 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Setter
 @Getter
@@ -32,6 +36,27 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     private Customer customer;
+    @JsonIgnore
+    @ManyToMany
+    @JoinTable(
+            name = "order_network_drive",
+            joinColumns = @JoinColumn(name = "order_id"),
+            inverseJoinColumns = @JoinColumn(name = "network_drive_id")
+    )
+    private List<NetworkDrive> networkDrives;
+
+    public void addNetworkDrive(NetworkDrive networkDrive) {
+        if (networkDrives == null) {
+            networkDrives = new ArrayList<>();
+        }
+        networkDrives.add(networkDrive);
+    }
+
+    public void removeNetworkDrive(Long networkDriveId) {
+        if (networkDrives != null) {
+            networkDrives.removeIf(networkDrive -> networkDrive.getNetworkDriveId().equals(networkDriveId));
+        }
+    }
     @Override
     public String toString() {
         return "Order{" +

@@ -1,24 +1,27 @@
 package com.example.demo.service;
 
 import com.example.demo.model.NetworkDrive;
-import com.example.demo.model.Order;
 import com.example.demo.repository.NetworkDriveRepository;
-import com.example.demo.repository.OrderRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class NetworkDriveService {
     private final NetworkDriveRepository networkDriveRepository;
-    private final OrderRepository orderRepository;
 
-    public NetworkDriveService(NetworkDriveRepository networkDriveRepository, OrderRepository orderRepository) {
+    public NetworkDriveService(NetworkDriveRepository networkDriveRepository) {
         this.networkDriveRepository = networkDriveRepository;
-        this.orderRepository = orderRepository;
     }
-
+    @Transactional
+    public NetworkDrive getNetworkDriveById(Long networkDriveId) {
+        return networkDriveRepository.findById(networkDriveId)
+                .orElseThrow(() -> new IllegalArgumentException("NetworkDrive not found with id: " + networkDriveId));
+    }
     public Page<NetworkDrive> getNas(int page, int size) {
         return networkDriveRepository.findAll(PageRequest.of(page, size));
     }
@@ -32,12 +35,9 @@ public class NetworkDriveService {
     }
 
     @Transactional
-    public void addNasForOrder(Long orderId, NetworkDrive networkDrive) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + orderId));
-
-        networkDrive.setOrders(order);
+    public NetworkDrive addNas(NetworkDrive networkDrive) {
         networkDriveRepository.save(networkDrive);
+        return networkDrive;
     }
 
     @Transactional
@@ -51,5 +51,14 @@ public class NetworkDriveService {
         existingNetworkDrive.setNetworkDriveCategory(updatedNetworkDrive.getNetworkDriveCategory());
 
         return networkDriveRepository.save(existingNetworkDrive);
+    }
+    public List<NetworkDrive> searchNasByName(String name, Pageable pageable) {
+        Page<NetworkDrive> pageResult = networkDriveRepository.findByNetworkDriveNameContainingIgnoreCase(name, pageable);
+        return pageResult.getContent();
+    }
+
+    public List<NetworkDrive> searchNasByPriceRange(double minPrice, double maxPrice, Pageable pageable) {
+        Page<NetworkDrive> pageResult = networkDriveRepository.findByPriceBetween(minPrice, maxPrice, pageable);
+        return pageResult.getContent();
     }
 }

@@ -3,21 +3,21 @@ package com.example.demo.DTO;
 import com.example.demo.model.NetworkDrive;
 import com.example.demo.model.NetworkDriveCategory;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public record NetworkDriveDTO(Long networkDriveId,
                               String networkDriveName,
                               double price,
                               String networkDriveInfo,
-                              NetworkDriveCategory networkDriveCategory,
-                              OrderDTO order) {
+                              NetworkDriveCategory networkDriveCategory) {
     public NetworkDriveDTO {
         Objects.requireNonNull(networkDriveId);
         Objects.requireNonNull(networkDriveName);
         Objects.requireNonNull(price);
         Objects.requireNonNull(networkDriveInfo);
         Objects.requireNonNull(networkDriveCategory);
-        Objects.requireNonNull(order);
     }
 
     public static NetworkDriveDTO fromNetworkDrive(NetworkDrive networkDrive) {
@@ -26,8 +26,14 @@ public record NetworkDriveDTO(Long networkDriveId,
                 networkDrive.getNetworkDriveName(),
                 networkDrive.getPrice(),
                 networkDrive.getNetworkDriveInfo(),
-                networkDrive.getNetworkDriveCategory(),
-                OrderDTO.fromOrder(networkDrive.getOrders())
+                networkDrive.getNetworkDriveCategory()
         );
     }
+
+    public static List<NetworkDriveDTO> fromNetworkDriveList(List<NetworkDrive> networkDrives) {
+        return networkDrives.stream()
+                .map(NetworkDriveDTO::fromNetworkDrive)
+                .collect(Collectors.toList());
+    }
+
 }
