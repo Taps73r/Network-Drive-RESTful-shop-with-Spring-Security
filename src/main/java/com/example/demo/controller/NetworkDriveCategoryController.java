@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.DTO.CombinedDTO;
 import com.example.demo.service.NetworkDriveCategoryService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,7 @@ public class NetworkDriveCategoryController {
     public NetworkDriveCategoryController(NetworkDriveCategoryService networkDriveCategoryService) {
         this.networkDriveCategoryService = networkDriveCategoryService;
     }
-
+    @Cacheable(value = "category", key = "{#page, #size}")
     @GetMapping("/{categoryName}")
     public Page<CombinedDTO> getProductsByCategory(
             @PathVariable String categoryName,

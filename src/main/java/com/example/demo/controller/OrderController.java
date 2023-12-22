@@ -4,6 +4,7 @@ import com.example.demo.DTO.OrderDTO;
 import com.example.demo.model.Order;
 import com.example.demo.model.Status;
 import com.example.demo.service.OrderService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ public class OrderController {
 
     // Get Orders with Pagination
     @GetMapping
+    @Cacheable(value = "orders", key = "{#page, #size}")
     public Page<OrderDTO> getAllCustomerOrders(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -32,6 +34,7 @@ public class OrderController {
 
     // Get Orders by Status with Pagination
     @GetMapping("/{status}")
+    @Cacheable(value = "orderbyStatus", key = "{#page, #size}")
     public Page<OrderDTO> getOrdersByStatus(
             @PathVariable Status status,
             @RequestParam(defaultValue = "0") int page,

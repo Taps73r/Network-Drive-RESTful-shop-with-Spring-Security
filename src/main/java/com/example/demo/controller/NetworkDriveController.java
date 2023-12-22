@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.DTO.NetworkDriveDTO;
 import com.example.demo.model.NetworkDrive;
 import com.example.demo.service.NetworkDriveService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ public class NetworkDriveController {
 
     // Get Network drives with Pagination
     @GetMapping
+    @Cacheable(value = "networkDrives", key = "{#page, #size}")
     public Page<NetworkDriveDTO> getNas(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -64,6 +66,7 @@ public class NetworkDriveController {
     }
     // Get Network drive by ID
     @GetMapping("/{nasId}")
+    @Cacheable(value = "networkDriveById", key = "#nasId")
     public ResponseEntity<NetworkDriveDTO> getNasById(@PathVariable Long nasId) {
         NetworkDrive networkDrive = networkDriveService.getNetworkDriveById(nasId);
         if (networkDrive != null) {

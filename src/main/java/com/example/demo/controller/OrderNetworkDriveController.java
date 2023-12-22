@@ -5,6 +5,7 @@ import com.example.demo.model.Order;
 import com.example.demo.model.Status;
 import com.example.demo.service.NetworkDriveService;
 import com.example.demo.service.OrderService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -66,6 +67,7 @@ public class OrderNetworkDriveController {
 
     // Get all NetworkDrive from Order with Pagination
     @GetMapping("/{orderId}")
+    @Cacheable(value = "NetworkdrivesfromOrder", key = "{#page, #size}")
     public ResponseEntity<Page<NetworkDrive>> getNetworkDrivesForOrder(
             @PathVariable Long orderId,
             @RequestParam(defaultValue = "0") int page,
