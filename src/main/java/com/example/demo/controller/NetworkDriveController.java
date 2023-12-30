@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/network_drives")
+@RequestMapping("/user/network_drives")
 public class NetworkDriveController {
     private final NetworkDriveService networkDriveService;
 

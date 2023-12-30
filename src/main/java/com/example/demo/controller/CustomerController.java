@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 @RestController
-@RequestMapping("/customers")
+@RequestMapping("/admin/customers")
 public class CustomerController {
 
     private final CustomerService customerService;

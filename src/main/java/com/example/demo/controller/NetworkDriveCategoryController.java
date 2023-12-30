@@ -7,7 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/category")
+@RequestMapping("/user/category")
 public class NetworkDriveCategoryController {
 
     private final NetworkDriveCategoryService networkDriveCategoryService;

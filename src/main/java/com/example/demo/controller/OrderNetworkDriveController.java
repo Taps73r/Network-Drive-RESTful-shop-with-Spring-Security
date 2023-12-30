@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/order-network-drives")
+@RequestMapping("/user/order-network-drives")
 public class OrderNetworkDriveController {
 
     private final OrderService orderService;

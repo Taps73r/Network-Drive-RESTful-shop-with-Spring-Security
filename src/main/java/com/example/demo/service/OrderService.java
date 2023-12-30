@@ -84,6 +84,13 @@ public class OrderService {
             throw new IllegalArgumentException("Order not found with id: " + orderId);
         }
     }
+    @Transactional
+    public Page<Order> getOrdersByCustomer(Long customerId, int page, int size) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found with id: " + customerId));
+
+        return orderRepository.findByCustomer(customer, PageRequest.of(page, size));
+    }
     public Page<NetworkDrive> getNetworkDrivesForOrder(Long orderId, Pageable pageable) {
         Order order = getOrderByIdInternal(orderId);
 

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/user/orders")
 
 public class OrderController {
     private final OrderService orderService;
@@ -33,7 +33,7 @@ public class OrderController {
     }
 
     // Get Orders by Status with Pagination
-    @GetMapping("/{status}")
+    @GetMapping("/status/{status}")
     @Cacheable(value = "orderbyStatus", key = "{#page, #size}")
     public Page<OrderDTO> getOrdersByStatus(
             @PathVariable Status status,
@@ -58,6 +58,17 @@ public class OrderController {
             return ResponseEntity.ok(responseDTO);
         }
     }
+
+    //Get Orders by Customer id
+    @GetMapping("/customer/{customerId}")
+    @Cacheable(value = "ordersByCustomer", key = "{#customerId, #page, #size}")
+    public Page<OrderDTO> getOrdersByCustomer(
+            @PathVariable Long customerId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return orderService.getOrdersByCustomer(customerId, page, size).map(OrderDTO::fromOrder);
+    }
+
     // Confirm Order
     @PostMapping("/{orderId}/confirm")
     public ResponseEntity<OrderDTO> confirmOrder(@PathVariable Long orderId) {
