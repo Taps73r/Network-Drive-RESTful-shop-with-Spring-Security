@@ -8,13 +8,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/user/network_drives")
+@RequestMapping("/network_drives")
 public class NetworkDriveController {
     private final NetworkDriveService networkDriveService;
 
@@ -24,15 +25,22 @@ public class NetworkDriveController {
 
     // Get Network drives with Pagination
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     @Cacheable(value = "networkDrives", key = "{#page, #size}")
     public Page<NetworkDriveDTO> getNas(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return networkDriveService.getNas(page, size).map(NetworkDriveDTO::fromNetworkDrive);
+        if (size > 20) {
+            throw new IllegalArgumentException("Size cannot exceed 20");
+        }
+        else {
+            return networkDriveService.getNas(page, size).map(NetworkDriveDTO::fromNetworkDrive);
+        }
     }
 
     //Update Network drive by ID
     @PutMapping("/{nasId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> updateNas(
             @PathVariable Long nasId,
             @RequestBody NetworkDrive updatedNetworkDrive) {
@@ -48,13 +56,15 @@ public class NetworkDriveController {
 
     //Delete Network drive by ID
     @DeleteMapping("/{nasId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> deleteNas(@PathVariable Long nasId) {
         networkDriveService.deleteNas(nasId);
         return ResponseEntity.ok("Nas deleted successfully");
     }
 
-    //Post Network drive to Order
+    //Post Network drive
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> createNetworkDrive(@RequestBody NetworkDrive networkDrive) {
         List<String> validationErrors = validateNetworkDrive(networkDrive);
         if (!validationErrors.isEmpty()) {
@@ -66,6 +76,7 @@ public class NetworkDriveController {
     }
     // Get Network drive by ID
     @GetMapping("/{nasId}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     @Cacheable(value = "networkDriveById", key = "#nasId")
     public ResponseEntity<NetworkDriveDTO> getNasById(@PathVariable Long nasId) {
         NetworkDrive networkDrive = networkDriveService.getNetworkDriveById(nasId);
@@ -78,25 +89,37 @@ public class NetworkDriveController {
 
     // Search Network drive by name
     @GetMapping("/searchByName")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public ResponseEntity<List<NetworkDriveDTO>> searchNasByName(
             @RequestParam String name,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        List<NetworkDrive> networkDrives = networkDriveService.searchNasByName(name, pageable);
-        return ResponseEntity.ok(NetworkDriveDTO.fromNetworkDriveList(networkDrives));
+        if (size > 20) {
+            throw new IllegalArgumentException("Size cannot exceed 20");
+        }
+        else {
+            Pageable pageable = PageRequest.of(page, size);
+            List<NetworkDrive> networkDrives = networkDriveService.searchNasByName(name, pageable);
+            return ResponseEntity.ok(NetworkDriveDTO.fromNetworkDriveList(networkDrives));
+        }
     }
 
     // Search Network drive by price range
     @GetMapping("/searchByPrice")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public ResponseEntity<List<NetworkDriveDTO>> searchNasByPriceRange(
             @RequestParam double minPrice,
             @RequestParam double maxPrice,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        List<NetworkDrive> networkDrives = networkDriveService.searchNasByPriceRange(minPrice, maxPrice, pageable);
-        return ResponseEntity.ok(NetworkDriveDTO.fromNetworkDriveList(networkDrives));
+        if (size > 20) {
+            throw new IllegalArgumentException("Size cannot exceed 20");
+        }
+        else {
+            Pageable pageable = PageRequest.of(page, size);
+            List<NetworkDrive> networkDrives = networkDriveService.searchNasByPriceRange(minPrice, maxPrice, pageable);
+            return ResponseEntity.ok(NetworkDriveDTO.fromNetworkDriveList(networkDrives));
+        }
     }
 
     private List<String> validateNetworkDrive(NetworkDrive networkDrive) {

@@ -31,6 +31,7 @@ public class Customer implements UserDetails {
     )
     private Long id;
     private String name;
+    @Column(unique = true)
     private String email;
     private String password;
     @Enumerated(EnumType.STRING)

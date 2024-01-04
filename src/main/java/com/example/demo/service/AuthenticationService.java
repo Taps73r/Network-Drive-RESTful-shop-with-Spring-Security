@@ -20,17 +20,26 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     public AuthenticationResponse register(RegisterRequest request) {
-        var user = Customer.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
-                .build();
-        repository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+        if (request.getEmail() == null || request.getPassword() == null ) {
+            throw new IllegalArgumentException("Email and password are required for registration");
+        }
+        if (request.getPassword().length() < 5) {
+            throw new IllegalArgumentException("Password should have a minimum length of 5 characters");
+        }
+        if (!request.getEmail().contains("@")) {
+            throw new IllegalArgumentException("Invalid email format. Email must contain '@'");
+        }
+            var user = Customer.builder()
+                    .name(request.getName())
+                    .email(request.getEmail())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .role(Role.USER)
+                    .build();
+            repository.save(user);
+            var jwtToken = jwtService.generateToken(user);
+            return AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .build();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {

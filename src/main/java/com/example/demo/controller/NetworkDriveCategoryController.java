@@ -20,7 +20,10 @@ public class NetworkDriveCategoryController {
     public Page<CombinedDTO> getProductsByCategory(
             @PathVariable String categoryName,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10")int size) {
+        if (size > 20) {
+            throw new IllegalArgumentException("Size cannot exceed 20");
+        }
         return networkDriveCategoryService.getProductsByCategory(categoryName, page, size);
     }
 }

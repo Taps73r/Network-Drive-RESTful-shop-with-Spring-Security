@@ -7,6 +7,7 @@ import com.example.demo.service.OrderService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -25,21 +26,33 @@ public class OrderController {
 
     // Get Orders with Pagination
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Cacheable(value = "orders", key = "{#page, #size}")
     public Page<OrderDTO> getAllCustomerOrders(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return orderService.getAllOrders(page, size).map(OrderDTO::fromOrder);
+        if (size > 20) {
+            throw new IllegalArgumentException("Size cannot exceed 20");
+        }
+        else {
+            return orderService.getAllOrders(page, size).map(OrderDTO::fromOrder);
+        }
     }
 
     // Get Orders by Status with Pagination
     @GetMapping("/status/{status}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Cacheable(value = "orderbyStatus", key = "{#page, #size}")
     public Page<OrderDTO> getOrdersByStatus(
             @PathVariable Status status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return orderService.getOrdersByStatus(status, page, size).map(OrderDTO::fromOrder);
+        if (size > 20) {
+            throw new IllegalArgumentException("Size cannot exceed 20");
+        }
+        else {
+            return orderService.getOrdersByStatus(status, page, size).map(OrderDTO::fromOrder);
+        }
     }
 
     //Create Order
@@ -66,7 +79,12 @@ public class OrderController {
             @PathVariable Long customerId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return orderService.getOrdersByCustomer(customerId, page, size).map(OrderDTO::fromOrder);
+        if (size > 20) {
+            throw new IllegalArgumentException("Size cannot exceed 20");
+        }
+        else {
+            return orderService.getOrdersByCustomer(customerId, page, size).map(OrderDTO::fromOrder);
+        }
     }
 
     // Confirm Order
@@ -87,6 +105,7 @@ public class OrderController {
 
     // Mark Order as Done
     @PostMapping("/{orderId}/done")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<OrderDTO> markOrderAsDone(@PathVariable Long orderId) {
         Order updatedOrder = orderService.updateOrderStatus(orderId, Status.DONE);
         OrderDTO responseDTO = OrderDTO.fromOrder(updatedOrder);

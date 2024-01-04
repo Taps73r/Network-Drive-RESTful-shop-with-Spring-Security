@@ -71,10 +71,12 @@ public class OrderNetworkDriveController {
     public ResponseEntity<Page<NetworkDrive>> getNetworkDrivesForOrder(
             @PathVariable Long orderId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10")  int size) {
 
         Order order = orderService.getOrderById(orderId);
-
+        if (size > 20) {
+            throw new IllegalArgumentException("Size cannot exceed 20");
+        }
         if (order == null) {
             return ResponseEntity.badRequest().body(null);
         }
